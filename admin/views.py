@@ -17,7 +17,7 @@ from pymysql import cursors
 """
 
 
-def getAcadamyList(request):
+def getAcadamyList(request):  # 获取学院列表
     pagesize = int(request.GET.get("pagesize"))
     pagenum = int(request.GET.get("pagenum"))
     total = 0
@@ -25,12 +25,12 @@ def getAcadamyList(request):
         con = pymysql.connect(host="localhost", port=3306,
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
-        cur.execute("select * from NCU;")
+        cur.execute("select * from college;")
         total = len(cur.fetchall())
-        sql = "select AcadamyID, AcadamyName,  AcadamyProfessor from NCU limit %s,%s;"
+        sql = "select cid, cname,  ccharge from college limit %s,%s;"
         cur.execute(sql, ((pagenum-1)*pagesize, pagenum*pagesize))
-        acadamylist = [{"AcadamyID": each[0], "AcadamyName":each[1],
-                        "AcadamyProfessor":each[2]} for each in cur.fetchall()]
+        acadamylist = [{"cid": each[0], "cname":each[1],
+                        "ccharge":each[2]} for each in cur.fetchall()]
         print(acadamylist)
     except Exception as e:
         print(e)
@@ -49,16 +49,16 @@ def getAcadamyList(request):
     }})
 
 
-def delAcadamy(request):
-    AcadamyID = request.GET.get("AcadamyID")
+def delAcadamy(request):  # 删除学院
+    cid = request.GET.get("cid")
     res = {}
     try:
         con = pymysql.connect(host="localhost", port=3306,
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
-        sql = 'delete from NCU where AcadamyID=%s;'
-        print(sql % AcadamyID)
-        cur.execute(sql, AcadamyID)
+        sql = 'delete from college where cid=%s;'
+        print(sql % cid)
+        cur.execute(sql, cid)
         con.commit()
         # 删除成功
         res["meta"] = {"msg": "删除成功！", "status": 200}
@@ -73,18 +73,18 @@ def delAcadamy(request):
         return JsonResponse(res)
 
 
-def CreateAcadamy(request):
-    AcadamyID = request.GET.get("AcadamyID")
-    AcadamyName = request.GET.get("AcadamyName")
-    AcadamyProfessor = request.GET.get("AcadamyProfessor")
+def CreateAcadamy(request):  # 创建学院
+    cid = request.GET.get("cid")
+    cname = request.GET.get("cname")
+    ccharge = request.GET.get("ccharge")
     res = {}
     try:
         con = pymysql.connect(host="localhost", port=3306,
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
-        sql = 'insert into NCU (AcadamyID,AcadamyName,AcadamyProfessor) values (%s,%s,%s);'
-        print(sql % (AcadamyID, AcadamyName, AcadamyProfessor))
-        cur.execute(sql, (AcadamyID, AcadamyName, AcadamyProfessor))
+        sql = 'insert into college (cid,cname,ccharge) values (%s,%s,%s);'
+        print(sql % (cid, cname, ccharge))
+        cur.execute(sql, (cid, cname, ccharge))
         con.commit()
         # 插入成功
         res["meta"] = {"msg": "创建成功！", "status": 200}
@@ -97,21 +97,20 @@ def CreateAcadamy(request):
         cur.close()
         con.close()
         return JsonResponse(res)
-    # pass
 
 
-def ModifyAcadamy(request):
-    AcadamyID = request.GET.get("AcadamyID")
-    AcadamyName = request.GET.get("AcadamyName")
-    AcadamyProfessor = request.GET.get("AcadamyProfessor")
+def ModifyAcadamy(request):  # 修改学院
+    cid = request.GET.get("cid")
+    cname = request.GET.get("cname")
+    ccharge = request.GET.get("ccharge")
     res = {}
     try:
         con = pymysql.connect(host="localhost", port=3306,
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
-        sql = 'update NCU set AcadamyName=%s,AcadamyProfessor=%s where AcadamyID=%s;'
-        print(sql % (AcadamyName, AcadamyProfessor, AcadamyID))
-        cur.execute(sql, (AcadamyName, AcadamyProfessor, AcadamyID))
+        sql = 'update college set cname=%s,ccharge=%s where cid=%s;'
+        print(sql % (cname, ccharge, cid))
+        cur.execute(sql, (cname, ccharge, cid))
         con.commit()
         # 修改成功
         res["meta"] = {"msg": "修改成功！", "status": 200}
@@ -131,7 +130,7 @@ def ModifyAcadamy(request):
 """
 
 
-def getDepartmentList(request):
+def getDepartmentList(request):  # 获取系列表
     pagesize = int(request.GET.get("pagesize"))
     pagenum = int(request.GET.get("pagenum"))
     total = 0
@@ -139,12 +138,12 @@ def getDepartmentList(request):
         con = pymysql.connect(host="localhost", port=3306,
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
-        cur.execute("select * from Acadamy;")
+        cur.execute("select * from department;")
         total = len(cur.fetchall())
-        sql = "select DepartmentID, DepartmentName,  DepartmentProfessor from Acadamy limit %s,%s;"
+        sql = "select did, dname,  dcharge, cid from department limit %s,%s;"
         cur.execute(sql, ((pagenum-1)*pagesize, pagenum*pagesize))
-        Departmentlist = [{"DepartmentID": each[0], "DepartmentName":each[1],
-                           "DepartmentProfessor":each[2]} for each in cur.fetchall()]
+        Departmentlist = [{"did": each[0], "dname":each[1],
+                           "dcharge":each[2], "cid":each[3]} for each in cur.fetchall()]
         print(Departmentlist)
     except Exception as e:
         print(e)
@@ -163,16 +162,16 @@ def getDepartmentList(request):
     }})
 
 
-def delDepartment(request):
-    DepartmentID = request.GET.get("DepartmentID")
+def delDepartment(request):  # 删除系
+    did = request.GET.get("did")
     res = {}
     try:
         con = pymysql.connect(host="localhost", port=3306,
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
-        sql = 'delete from Acadamy where DepartmentID=%s;'
-        print(sql % DepartmentID)
-        cur.execute(sql, DepartmentID)
+        sql = 'delete from department where did=%s;'
+        print(sql % did)
+        cur.execute(sql, did)
         con.commit()
         # 删除成功
         res["meta"] = {"msg": "删除成功！", "status": 200}
@@ -187,18 +186,21 @@ def delDepartment(request):
         return JsonResponse(res)
 
 
-def CreateDepartment(request):
-    DepartmentID = request.GET.get("DepartmentID")
-    DepartmentName = request.GET.get("DepartmentName")
-    DepartmentProfessor = request.GET.get("DepartmentProfessor")
+def CreateDepartment(request):  # 创建系
+    did = request.GET.get("did")
+    dname = request.GET.get("dname")
+    dcharge = request.GET.get("dcharge")
+    cid = request.GET.get("cid")
     res = {}
     try:
         con = pymysql.connect(host="localhost", port=3306,
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
-        sql = 'insert into Acadamy (DepartmentID,DepartmentName,DepartmentProfessor) values (%s,%s,%s);'
-        print(sql % (DepartmentID, DepartmentName, DepartmentProfessor))
-        cur.execute(sql, (DepartmentID, DepartmentName, DepartmentProfessor))
+        sql = 'insert into department (did,dname,dcharge,cid) values (%s,%s,%s,%s);'
+        print(sql % (did, dname,
+              dcharge, cid))
+        cur.execute(sql, (did, dname,
+                    dcharge, cid))
         con.commit()
         # 插入成功
         res["meta"] = {"msg": "创建成功！", "status": 200}
@@ -211,21 +213,23 @@ def CreateDepartment(request):
         cur.close()
         con.close()
         return JsonResponse(res)
-    # pass
 
 
-def ModifyDepartment(request):
-    DepartmentID = request.GET.get("DepartmentID")
-    DepartmentName = request.GET.get("DepartmentName")
-    DepartmentProfessor = request.GET.get("DepartmentProfessor")
+def ModifyDepartment(request):  # 修改系
+    did = request.GET.get("did")
+    dname = request.GET.get("dname")
+    dcharge = request.GET.get("dcharge")
+    cid = request.GET.get("cid")
     res = {}
     try:
         con = pymysql.connect(host="localhost", port=3306,
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
-        sql = 'update Acadamy set DepartmentName=%s,DepartmentProfessor=%s where DepartmentID=%s;'
-        print(sql % (DepartmentName, DepartmentProfessor, DepartmentID))
-        cur.execute(sql, (DepartmentName, DepartmentProfessor, DepartmentID))
+        sql = 'update department set dname=%s,dcharge=%s,cid=%s where did=%s;'
+        print(sql % (dname, dcharge,
+              cid, did))
+        cur.execute(sql, (dname, dcharge,
+                    cid, did))
         con.commit()
         # 修改成功
         res["meta"] = {"msg": "修改成功！", "status": 200}
@@ -240,42 +244,804 @@ def ModifyDepartment(request):
         return JsonResponse(res)
 
 
-def test(request):
-    print("请求头: ")
-    print(request)
-    print("请求头结束")
-    """
-        根据pagesize和pagenum查询数据
-    """
+"""
+    教研室
+"""
+
+
+def getJiaoYanList(request):  # 获取教研室列表
     pagesize = int(request.GET.get("pagesize"))
     pagenum = int(request.GET.get("pagenum"))
-    # print(request.GET.get("pagesize"))
-    con = pymysql.Connect(host="localhost", user="root",
-                          password="root", port=3306, db="mydb")
-    # print(con)
-    cur = con.cursor()
-    # sql = "select mg_name, mg_mobile,  mg_email from sp_manager;"
-    sql = "select mg_name, mg_mobile,  mg_email, sp_role.role_name, mg_state, mg_id from sp_role right outer join sp_manager on (sp_role.role_id=sp_manager.role_id) limit %s,%s;"
-    cur.execute(sql, ((pagenum-1)*pagesize, pagenum*pagesize))
-    res = []
-    for each in cur.fetchall():
-        one = {}
-        one["id"] = each[5]
-        one["username"] = each[0]
-        one["mobile"] = each[1]
-        one["email"] = each[2]
-        one["role_name"] = each[3]
-        one["mg_state"] = each[4]
-        print(one)
-        res.append(one)
-    con.close()
-    return JsonResponse({"data": {"total": 6,
+    total = 0
+    try:
+        con = pymysql.connect(host="localhost", port=3306,
+                              user="root", password="root", db="djangodb")
+        cur = con.cursor()
+        cur.execute("select * from jiaoyan;")
+        total = len(cur.fetchall())
+        sql = "select jid, jname,  jcharge, did from jiaoyan limit %s,%s;"
+        cur.execute(sql, ((pagenum-1)*pagesize, pagenum*pagesize))
+        JiaoYanList = [{"jid": each[0], "jname":each[1],
+                        "jcharge":each[2], "did":each[3]} for each in cur.fetchall()]
+        print(JiaoYanList)
+    except Exception as e:
+        print(e)
+    finally:
+        cur.close()
+        con.close()
+        print("total: ", end="")
+        print(total)
+        print("##########")
+    return JsonResponse({"data": {"total": total,
                                   "pagenum": 1,
-                                  "users":   res},
+                                  "JiaoYanList":   JiaoYanList},
                          "meta": {
-                             "msg": "获取管理员列表成功",
+                             "msg": "获取教研室列表成功",
                              "status": 200
     }})
+
+
+def delJiaoYan(request):  # 删除教研室
+    jid = request.GET.get("jid")
+    res = {}
+    try:
+        con = pymysql.connect(host="localhost", port=3306,
+                              user="root", password="root", db="djangodb")
+        cur = con.cursor()
+        sql = 'delete from jiaoyan where jid=%s;'
+        print(sql % jid)
+        cur.execute(sql, jid)
+        con.commit()
+        # 删除成功
+        res["meta"] = {"msg": "删除成功！", "status": 200}
+    except Exception as e:
+        # 删除失败
+        print(e)
+        print("删除失败！")
+        res["meta"] = {"msg": "删除失败！", "status": 400}
+    finally:
+        cur.close()
+        con.close()
+        return JsonResponse(res)
+
+
+def CreateJiaoYan(request):  # 创建教研室
+    jid = request.GET.get("jid")
+    jname = request.GET.get("jname")
+    jcharge = request.GET.get("jcharge")
+    did = request.GET.get("did")
+    res = {}
+    try:
+        con = pymysql.connect(host="localhost", port=3306,
+                              user="root", password="root", db="djangodb")
+        cur = con.cursor()
+        sql = 'insert into department (jid,jname,jcharge,did) values (%s,%s,%s,%s);'
+        print(sql % (jid, jname,
+              jcharge, did))
+        cur.execute(sql, (jid, jname,
+                    jcharge, did))
+        con.commit()
+        # 插入成功
+        res["meta"] = {"msg": "创建成功！", "status": 200}
+    except Exception as e:
+        # 插入失败
+        print(e)
+        print("创建失败！")
+        res["meta"] = {"msg": "创建失败！", "status": 400}
+    finally:
+        cur.close()
+        con.close()
+        return JsonResponse(res)
+
+
+def ModifyJiaoYan(request):  # 修改教研室
+    jid = request.GET.get("jid")
+    jname = request.GET.get("jname")
+    jcharge = request.GET.get("jcharge")
+    did = request.GET.get("did")
+    res = {}
+    try:
+        con = pymysql.connect(host="localhost", port=3306,
+                              user="root", password="root", db="djangodb")
+        cur = con.cursor()
+        sql = 'update department set jname=%s,jcharge=%s,did=%s where jid=%s;'
+        print(sql % (jname, jcharge,
+              did, jid))
+        cur.execute(sql, (jname, jcharge,
+                    did, jid))
+        con.commit()
+        # 修改成功
+        res["meta"] = {"msg": "修改成功！", "status": 200}
+    except Exception as e:
+        # 修改失败
+        print(e)
+        print("修改失败！")
+        res["meta"] = {"msg": "修改失败！", "status": 400}
+    finally:
+        cur.close()
+        con.close()
+        return JsonResponse(res)
+
+
+"""
+    班级
+"""
+
+
+def getClassList(request):  # 获取班级列表
+    pagesize = int(request.GET.get("pagesize"))
+    pagenum = int(request.GET.get("pagenum"))
+    total = 0
+    try:
+        con = pymysql.connect(host="localhost", port=3306,
+                              user="root", password="root", db="djangodb")
+        cur = con.cursor()
+        cur.execute("select * from class;")
+        total = len(cur.fetchall())
+        sql = "select cid, cname, did from class limit %s,%s;"
+        cur.execute(sql, ((pagenum-1)*pagesize, pagenum*pagesize))
+        ClassList = [{"cid": each[0], "cname":each[1],
+                      "did":each[2]} for each in cur.fetchall()]
+        print(ClassList)
+    except Exception as e:
+        print(e)
+    finally:
+        cur.close()
+        con.close()
+        print("total: ", end="")
+        print(total)
+        print("##########")
+    return JsonResponse({"data": {"total": total,
+                                  "pagenum": 1,
+                                  "ClassList":   ClassList},
+                         "meta": {
+                             "msg": "获取班级列表成功",
+                             "status": 200
+    }})
+
+
+def delClass(request):  # 删除班级
+    cid = request.GET.get("cid")
+    res = {}
+    try:
+        con = pymysql.connect(host="localhost", port=3306,
+                              user="root", password="root", db="djangodb")
+        cur = con.cursor()
+        sql = 'delete from class where cid=%s;'
+        print(sql % cid)
+        cur.execute(sql, cid)
+        con.commit()
+        # 删除成功
+        res["meta"] = {"msg": "删除成功！", "status": 200}
+    except Exception as e:
+        # 删除失败
+        print(e)
+        print("删除失败！")
+        res["meta"] = {"msg": "删除失败！", "status": 400}
+    finally:
+        cur.close()
+        con.close()
+        return JsonResponse(res)
+
+
+def CreateClass(request):  # 创建班级
+    cid = request.GET.get("cid")
+    cname = request.GET.get("cname")
+    did = request.GET.get("did")
+    res = {}
+    try:
+        con = pymysql.connect(host="localhost", port=3306,
+                              user="root", password="root", db="djangodb")
+        cur = con.cursor()
+        sql = 'insert into class (cid,cname,did) values (%s,%s,%s,%s);'
+        print(sql % (cid, cname, did))
+        cur.execute(sql, (cid, cname, did))
+        con.commit()
+        # 插入成功
+        res["meta"] = {"msg": "创建成功！", "status": 200}
+    except Exception as e:
+        # 插入失败
+        print(e)
+        print("创建失败！")
+        res["meta"] = {"msg": "创建失败！", "status": 400}
+    finally:
+        cur.close()
+        con.close()
+        return JsonResponse(res)
+
+
+def ModifyClass(request):  # 修改班级
+    cid = request.GET.get("cid")
+    cname = request.GET.get("cname")
+    did = request.GET.get("did")
+    res = {}
+    try:
+        con = pymysql.connect(host="localhost", port=3306,
+                              user="root", password="root", db="djangodb")
+        cur = con.cursor()
+        sql = 'update class set cname=%s,did=%s where cid=%s;'
+        print(sql % (cname, did, cid))
+        cur.execute(sql, (cname, did, cid))
+        con.commit()
+        # 修改成功
+        res["meta"] = {"msg": "修改成功！", "status": 200}
+    except Exception as e:
+        # 修改失败
+        print(e)
+        print("修改失败！")
+        res["meta"] = {"msg": "修改失败！", "status": 400}
+    finally:
+        cur.close()
+        con.close()
+        return JsonResponse(res)
+
+
+"""
+    教师
+"""
+
+
+def getTeacherList(request):  # 获取教师列表
+    pagesize = int(request.GET.get("pagesize"))
+    pagenum = int(request.GET.get("pagenum"))
+    total = 0
+    try:
+        con = pymysql.connect(host="localhost", port=3306,
+                              user="root", password="root", db="djangodb")
+        cur = con.cursor()
+        cur.execute("select * from teacher;")
+        total = len(cur.fetchall())
+        sql = "select tid, tname, trank, jid from teacher limit %s,%s;"
+        cur.execute(sql, ((pagenum-1)*pagesize, pagenum*pagesize))
+        TeacherList = [{"tid": each[0], "tname":each[1],
+                        "trank":each[2], "jid":each[3]} for each in cur.fetchall()]
+        print(TeacherList)
+    except Exception as e:
+        print(e)
+    finally:
+        cur.close()
+        con.close()
+        print("total: ", end="")
+        print(total)
+        print("##########")
+    return JsonResponse({"data": {"total": total,
+                                  "pagenum": 1,
+                                  "TeacherList":   TeacherList},
+                         "meta": {
+                             "msg": "获取教师列表成功",
+                             "status": 200
+    }})
+
+
+def delTeacher(request):  # 删除教师
+    tid = request.GET.get("tid")
+    res = {}
+    try:
+        con = pymysql.connect(host="localhost", port=3306,
+                              user="root", password="root", db="djangodb")
+        cur = con.cursor()
+        sql = 'delete from teacher where tid=%s;'
+        print(sql % tid)
+        cur.execute(sql, tid)
+        con.commit()
+        # 删除成功
+        res["meta"] = {"msg": "删除成功！", "status": 200}
+    except Exception as e:
+        # 删除失败
+        print(e)
+        print("删除失败！")
+        res["meta"] = {"msg": "删除失败！", "status": 400}
+    finally:
+        cur.close()
+        con.close()
+        return JsonResponse(res)
+
+
+def CreateTeacher(request):  # 创建教师
+    tid = request.GET.get("tid")
+    tname = request.GET.get("tname")
+    trank = request.GET.get("trank")
+    jid = request.GET.get("jid")
+    res = {}
+    try:
+        con = pymysql.connect(host="localhost", port=3306,
+                              user="root", password="root", db="djangodb")
+        cur = con.cursor()
+        sql = 'insert into teacher (tid,tname,trank,jid) values (%s,%s,%s,%s);'
+        print(sql % (tid, tname, trank, jid))
+        cur.execute(sql, (tid, tname, trank, jid))
+        con.commit()
+        # 插入成功
+        res["meta"] = {"msg": "创建成功！", "status": 200}
+    except Exception as e:
+        # 插入失败
+        print(e)
+        print("创建失败！")
+        res["meta"] = {"msg": "创建失败！", "status": 400}
+    finally:
+        cur.close()
+        con.close()
+        return JsonResponse(res)
+
+
+def ModifyTeacher(request):  # 修改教师
+    tid = request.GET.get("tid")
+    tname = request.GET.get("tname")
+    trank = request.GET.get("trank")
+    jid = request.GET.get("jid")
+    res = {}
+    try:
+        con = pymysql.connect(host="localhost", port=3306,
+                              user="root", password="root", db="djangodb")
+        cur = con.cursor()
+        sql = 'update teacher set tname=%s,trank=%s,jid=%s where tid=%s;'
+        print(sql % (tname, trank, jid, tid))
+        cur.execute(sql, (tname, trank, jid, tid))
+        con.commit()
+        # 修改成功
+        res["meta"] = {"msg": "修改成功！", "status": 200}
+    except Exception as e:
+        # 修改失败
+        print(e)
+        print("修改失败！")
+        res["meta"] = {"msg": "修改失败！", "status": 400}
+    finally:
+        cur.close()
+        con.close()
+        return JsonResponse(res)
+
+
+"""
+    学生
+"""
+
+
+def getStudentList(request):  # 获取学生列表
+    pagesize = int(request.GET.get("pagesize"))
+    pagenum = int(request.GET.get("pagenum"))
+    total = 0
+    try:
+        con = pymysql.connect(host="localhost", port=3306,
+                              user="root", password="root", db="djangodb")
+        cur = con.cursor()
+        cur.execute("select * from student;")
+        total = len(cur.fetchall())
+        sql = "select sid, sname, ssex, cid from student limit %s,%s;"
+        cur.execute(sql, ((pagenum-1)*pagesize, pagenum*pagesize))
+        StudentList = [{"sid": each[0], "sname":each[1],
+                        "ssex":each[2], "cid":each[3]} for each in cur.fetchall()]
+        print(StudentList)
+    except Exception as e:
+        print(e)
+    finally:
+        cur.close()
+        con.close()
+        print("total: ", end="")
+        print(total)
+        print("##########")
+    return JsonResponse({"data": {"total": total,
+                                  "pagenum": 1,
+                                  "StudentList":   StudentList},
+                         "meta": {
+                             "msg": "获取学生列表成功",
+                             "status": 200
+    }})
+
+
+def delStudent(request):  # 删除学生
+    sid = request.GET.get("sid")
+    res = {}
+    try:
+        con = pymysql.connect(host="localhost", port=3306,
+                              user="root", password="root", db="djangodb")
+        cur = con.cursor()
+        sql = 'delete from student where sid=%s;'
+        print(sql % sid)
+        cur.execute(sql, sid)
+        con.commit()
+        # 删除成功
+        res["meta"] = {"msg": "删除成功！", "status": 200}
+    except Exception as e:
+        # 删除失败
+        print(e)
+        print("删除失败！")
+        res["meta"] = {"msg": "删除失败！", "status": 400}
+    finally:
+        cur.close()
+        con.close()
+        return JsonResponse(res)
+
+
+def CreateStudent(request):  # 创建学生
+    sid = request.GET.get("sid")
+    sname = request.GET.get("sname")
+    ssex = request.GET.get("ssex")
+    cid = request.GET.get("cid")
+    res = {}
+    try:
+        con = pymysql.connect(host="localhost", port=3306,
+                              user="root", password="root", db="djangodb")
+        cur = con.cursor()
+        sql = 'insert into student (sid,sname,ssex,cid) values (%s,%s,%s,%s);'
+        print(sql % (sid, sname, ssex, cid))
+        cur.execute(sql, (sid, sname, ssex, cid))
+        con.commit()
+        # 插入成功
+        res["meta"] = {"msg": "创建成功！", "status": 200}
+    except Exception as e:
+        # 插入失败
+        print(e)
+        print("创建失败！")
+        res["meta"] = {"msg": "创建失败！", "status": 400}
+    finally:
+        cur.close()
+        con.close()
+        return JsonResponse(res)
+
+
+def ModifyStudent(request):  # 修改学生
+    sid = request.GET.get("sid")
+    sname = request.GET.get("sname")
+    ssex = request.GET.get("ssex")
+    cid = request.GET.get("cid")
+    res = {}
+    try:
+        con = pymysql.connect(host="localhost", port=3306,
+                              user="root", password="root", db="djangodb")
+        cur = con.cursor()
+        sql = 'update student set sname=%s,ssex=%s,cid=%s where sid=%s;'
+        print(sql % (sname, ssex, cid, sid))
+        cur.execute(sql, (sname, ssex, cid, sid))
+        con.commit()
+        # 修改成功
+        res["meta"] = {"msg": "修改成功！", "status": 200}
+    except Exception as e:
+        # 修改失败
+        print(e)
+        print("修改失败！")
+        res["meta"] = {"msg": "修改失败！", "status": 400}
+    finally:
+        cur.close()
+        con.close()
+        return JsonResponse(res)
+
+
+"""
+    课程
+"""
+
+
+def getCourseList(request):  # 获取课程列表
+    pagesize = int(request.GET.get("pagesize"))
+    pagenum = int(request.GET.get("pagenum"))
+    total = 0
+    try:
+        con = pymysql.connect(host="localhost", port=3306,
+                              user="root", password="root", db="djangodb")
+        cur = con.cursor()
+        cur.execute("select * from course;")
+        total = len(cur.fetchall())
+        sql = "select cid, cname from course limit %s,%s;"
+        cur.execute(sql, ((pagenum-1)*pagesize, pagenum*pagesize))
+        CourseList = [{"cid": each[0], "cname":each[1]}
+                      for each in cur.fetchall()]
+        print(CourseList)
+    except Exception as e:
+        print(e)
+    finally:
+        cur.close()
+        con.close()
+        print("total: ", end="")
+        print(total)
+        print("##########")
+    return JsonResponse({"data": {"total": total,
+                                  "pagenum": 1,
+                                  "CourseList":   CourseList},
+                         "meta": {
+                             "msg": "获取课程列表成功",
+                             "status": 200
+    }})
+
+
+def delCourse(request):  # 删除课程
+    cid = request.GET.get("cid")
+    res = {}
+    try:
+        con = pymysql.connect(host="localhost", port=3306,
+                              user="root", password="root", db="djangodb")
+        cur = con.cursor()
+        sql = 'delete from course where cid=%s;'
+        print(sql % cid)
+        cur.execute(sql, cid)
+        con.commit()
+        # 删除成功
+        res["meta"] = {"msg": "删除成功！", "status": 200}
+    except Exception as e:
+        # 删除失败
+        print(e)
+        print("删除失败！")
+        res["meta"] = {"msg": "删除失败！", "status": 400}
+    finally:
+        cur.close()
+        con.close()
+        return JsonResponse(res)
+
+
+def CreateCourse(request):  # 创建课程
+    cid = request.GET.get("cid")
+    cname = request.GET.get("cname")
+    res = {}
+    try:
+        con = pymysql.connect(host="localhost", port=3306,
+                              user="root", password="root", db="djangodb")
+        cur = con.cursor()
+        sql = 'insert into course (cid,cname) values (%s,%s);'
+        print(sql % (cid, cname))
+        cur.execute(sql, (cid, cname))
+        con.commit()
+        # 插入成功
+        res["meta"] = {"msg": "创建成功！", "status": 200}
+    except Exception as e:
+        # 插入失败
+        print(e)
+        print("创建失败！")
+        res["meta"] = {"msg": "创建失败！", "status": 400}
+    finally:
+        cur.close()
+        con.close()
+        return JsonResponse(res)
+
+
+def ModifyCourse(request):  # 修改课程
+    cid = request.GET.get("cid")
+    cname = request.GET.get("cname")
+    res = {}
+    try:
+        con = pymysql.connect(host="localhost", port=3306,
+                              user="root", password="root", db="djangodb")
+        cur = con.cursor()
+        sql = 'update course set cname=%s where cid=%s;'
+        print(sql % (cname, cid))
+        cur.execute(sql, (cname, cid))
+        con.commit()
+        # 修改成功
+        res["meta"] = {"msg": "修改成功！", "status": 200}
+    except Exception as e:
+        # 修改失败
+        print(e)
+        print("修改失败！")
+        res["meta"] = {"msg": "修改失败！", "status": 400}
+    finally:
+        cur.close()
+        con.close()
+        return JsonResponse(res)
+
+
+"""
+    成绩
+"""
+
+
+def getGradeList(request):  # 获取成绩列表
+    pagesize = int(request.GET.get("pagesize"))
+    pagenum = int(request.GET.get("pagenum"))
+    total = 0
+    try:
+        con = pymysql.connect(host="localhost", port=3306,
+                              user="root", password="root", db="djangodb")
+        cur = con.cursor()
+        cur.execute("select * from stugrades;")
+        total = len(cur.fetchall())
+        sql = "select sid, cid, sgrade from stugrades limit %s,%s;"
+        cur.execute(sql, ((pagenum-1)*pagesize, pagenum*pagesize))
+        GradeList = [{"sid": each[0], "cid":each[1], "sgrade":each[2]}
+                     for each in cur.fetchall()]
+        print(GradeList)
+    except Exception as e:
+        print(e)
+    finally:
+        cur.close()
+        con.close()
+        print("total: ", end="")
+        print(total)
+        print("##########")
+    return JsonResponse({"data": {"total": total,
+                                  "pagenum": 1,
+                                  "GradeList":   GradeList},
+                         "meta": {
+                             "msg": "获取成绩列表成功",
+                             "status": 200
+    }})
+
+
+def delGrade(request):  # 删除成绩
+    sid = request.GET.get("sid")
+    res = {}
+    try:
+        con = pymysql.connect(host="localhost", port=3306,
+                              user="root", password="root", db="djangodb")
+        cur = con.cursor()
+        sql = 'delete from stugrades where sid=%s;'
+        print(sql % sid)
+        cur.execute(sql, sid)
+        con.commit()
+        # 删除成功
+        res["meta"] = {"msg": "删除成功！", "status": 200}
+    except Exception as e:
+        # 删除失败
+        print(e)
+        print("删除失败！")
+        res["meta"] = {"msg": "删除失败！", "status": 400}
+    finally:
+        cur.close()
+        con.close()
+        return JsonResponse(res)
+
+
+def InputGrade(request):  # 录入成绩
+    sid = request.GET.get("sid")
+    cid = request.GET.get("cid")
+    sgrade = request.GET.get("sgrade")
+    res = {}
+    try:
+        con = pymysql.connect(host="localhost", port=3306,
+                              user="root", password="root", db="djangodb")
+        cur = con.cursor()
+        sql = 'insert into stugrades (sid,cid,sgrade) values (%s,%s,%s);'
+        print(sql % (sid, cid, sgrade))
+        cur.execute(sql, (sid, cid, sgrade))
+        con.commit()
+        # 插入成功
+        res["meta"] = {"msg": "录入成功！", "status": 200}
+    except Exception as e:
+        # 插入失败
+        print(e)
+        print("创建失败！")
+        res["meta"] = {"msg": "录入失败！", "status": 400}
+    finally:
+        cur.close()
+        con.close()
+        return JsonResponse(res)
+
+
+def ModifyGrade(request):  # 修改成绩
+    sid = request.GET.get("sid")
+    cid = request.GET.get("cid")
+    sgrade = request.GET.get("sgrade")
+    res = {}
+    try:
+        con = pymysql.connect(host="localhost", port=3306,
+                              user="root", password="root", db="djangodb")
+        cur = con.cursor()
+        sql = 'update stugrades set cid=%s, sgrade=%s where sid=%s;'
+        print(sql % (cid, sgrade, sid))
+        cur.execute(sql, (cid, sgrade, sid))
+        con.commit()
+        # 修改成功
+        res["meta"] = {"msg": "修改成功！", "status": 200}
+    except Exception as e:
+        # 修改失败
+        print(e)
+        print("修改失败！")
+        res["meta"] = {"msg": "修改失败！", "status": 400}
+    finally:
+        cur.close()
+        con.close()
+        return JsonResponse(res)
+
+
+"""
+    老师教授的班级课程
+"""
+
+
+def getTeacherClassCourseList(request):  # 获取老师教授的班级课程列表
+    pagesize = int(request.GET.get("pagesize"))
+    pagenum = int(request.GET.get("pagenum"))
+    total = 0
+    try:
+        con = pymysql.connect(host="localhost", port=3306,
+                              user="root", password="root", db="djangodb")
+        cur = con.cursor()
+        cur.execute("select * from Teacher_Class_Course;")
+        total = len(cur.fetchall())
+        sql = "select tid, claid, couid from Teacher_Class_Course limit %s,%s;"
+        cur.execute(sql, ((pagenum-1)*pagesize, pagenum*pagesize))
+        TeacherClassCourseList = [{"tid": each[0], "claid":each[1], "couid":each[2]}
+                                  for each in cur.fetchall()]
+        print(TeacherClassCourseList)
+    except Exception as e:
+        print(e)
+    finally:
+        cur.close()
+        con.close()
+        print("total: ", end="")
+        print(total)
+        print("##########")
+    return JsonResponse({"data": {"total": total,
+                                  "pagenum": 1,
+                                  "TeacherClassCourseList":   TeacherClassCourseList},
+                         "meta": {
+                             "msg": "获取老师教授的班级课程列表成功",
+                             "status": 200
+    }})
+
+
+def delTeacherClassCourse(request):  # 删除老师教授的班级课程
+    tid = request.GET.get("tid")
+    res = {}
+    try:
+        con = pymysql.connect(host="localhost", port=3306,
+                              user="root", password="root", db="djangodb")
+        cur = con.cursor()
+        sql = 'delete from Teacher_Class_Course where tid=%s;'
+        print(sql % tid)
+        cur.execute(sql, tid)
+        con.commit()
+        # 删除成功
+        res["meta"] = {"msg": "删除成功！", "status": 200}
+    except Exception as e:
+        # 删除失败
+        print(e)
+        print("删除失败！")
+        res["meta"] = {"msg": "删除失败！", "status": 400}
+    finally:
+        cur.close()
+        con.close()
+        return JsonResponse(res)
+
+
+def InputTeacherClassCourse(request):  # 录入老师教授的班级课程
+    tid = request.GET.get("tid")
+    claid = request.GET.get("claid")
+    couid = request.GET.get("couid")
+    res = {}
+    try:
+        con = pymysql.connect(host="localhost", port=3306,
+                              user="root", password="root", db="djangodb")
+        cur = con.cursor()
+        sql = 'insert into Teacher_Class_Course (tid,claid,couid) values (%s,%s,%s);'
+        print(sql % (tid, claid, couid))
+        cur.execute(sql, (tid, claid, couid))
+        con.commit()
+        # 插入成功
+        res["meta"] = {"msg": "创建成功！", "status": 200}
+    except Exception as e:
+        # 插入失败
+        print(e)
+        print("创建失败！")
+        res["meta"] = {"msg": "创建失败！", "status": 400}
+    finally:
+        cur.close()
+        con.close()
+        return JsonResponse(res)
+
+
+def ModifyTeacherClassCourse(request):  # 修改老师教授的班级课程
+    tid = request.GET.get("tid")
+    claid = request.GET.get("claid")
+    couid = request.GET.get("couid")
+    res = {}
+    try:
+        con = pymysql.connect(host="localhost", port=3306,
+                              user="root", password="root", db="djangodb")
+        cur = con.cursor()
+        sql = 'update Teacher_Class_Course set claid=%s couid=%s where tid=%s;'
+        print(sql % (claid, couid, tid))
+        cur.execute(sql, (claid, couid, tid))
+        con.commit()
+        # 修改成功
+        res["meta"] = {"msg": "修改成功！", "status": 200}
+    except Exception as e:
+        # 修改失败
+        print(e)
+        print("修改失败！")
+        res["meta"] = {"msg": "修改失败！", "status": 400}
+    finally:
+        cur.close()
+        con.close()
+        return JsonResponse(res)
+
 
 
 def menu(request):
