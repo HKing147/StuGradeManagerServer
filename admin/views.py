@@ -28,7 +28,7 @@ def getCollegeList(request):  # 获取学院列表
         cur.execute("select * from college;")
         total = len(cur.fetchall())
         sql = "select cid, cname,  ccharge from college limit %s,%s;"
-        cur.execute(sql, ((pagenum-1)*pagesize, pagenum*pagesize))
+        cur.execute(sql, ((pagenum-1)*pagesize, pagesize))
         CollegeList = [{"cid": each[0], "cname":each[1],
                         "ccharge":each[2]} for each in cur.fetchall()]
         print(CollegeList)
@@ -141,7 +141,7 @@ def getDepartmentList(request):  # 获取系列表
         cur.execute("select * from department;")
         total = len(cur.fetchall())
         sql = "select did, dname, dcharge, cname from department,college where department.cid = college.cid limit %s,%s;"
-        cur.execute(sql, ((pagenum-1)*pagesize, pagenum*pagesize))
+        cur.execute(sql, ((pagenum-1)*pagesize, pagesize))
         DepartmentList = [{"did": each[0], "dname":each[1],
                            "dcharge":each[2], "cname":each[3]} for each in cur.fetchall()]
         print(DepartmentList)
@@ -265,7 +265,7 @@ def getJiaoYanList(request):  # 获取教研室列表
         cur.execute("select * from jiaoyan;")
         total = len(cur.fetchall())
         sql = "select jid, jname,  jcharge, dname from jiaoyan,department where jiaoyan.did=department.did limit %s,%s;"
-        cur.execute(sql, ((pagenum-1)*pagesize, pagenum*pagesize))
+        cur.execute(sql, ((pagenum-1)*pagesize, pagesize))
         JiaoYanList = [{"jid": each[0], "jname":each[1],
                         "jcharge":each[2], "dname":each[3]} for each in cur.fetchall()]
         print(JiaoYanList)
@@ -389,7 +389,7 @@ def getClassList(request):  # 获取班级列表
         cur.execute("select * from class;")
         total = len(cur.fetchall())
         sql = "select class.cid, cname, dname from class,department where class.did=department.did limit %s,%s;"
-        cur.execute(sql, ((pagenum-1)*pagesize, pagenum*pagesize))
+        cur.execute(sql, ((pagenum-1)*pagesize, pagesize))
         ClassList = [{"cid": each[0], "cname":each[1],
                       "dname":each[2]} for each in cur.fetchall()]
         print(ClassList)
@@ -506,7 +506,7 @@ def getTeacherList(request):  # 获取教师列表
         cur.execute("select * from teacher;")
         total = len(cur.fetchall())
         sql = "select tid, tname, trank, jname from teacher,jiaoyan where teacher.jid=jiaoyan.jid limit %s,%s;"
-        cur.execute(sql, ((pagenum-1)*pagesize, pagenum*pagesize))
+        cur.execute(sql, ((pagenum-1)*pagesize, pagesize))
         TeacherList = [{"tid": each[0], "tname":each[1],
                         "trank":each[2], "jname":each[3]} for each in cur.fetchall()]
         print(TeacherList)
@@ -626,7 +626,7 @@ def getStudentList(request):  # 获取学生列表
         cur.execute("select * from student;")
         total = len(cur.fetchall())
         sql = "select sid, sname, ssex, cname from student,class where student.cid=class.cid limit %s,%s;"
-        cur.execute(sql, ((pagenum-1)*pagesize, pagenum*pagesize))
+        cur.execute(sql, ((pagenum-1)*pagesize, pagesize))
         StudentList = [{"sid": each[0], "sname":each[1],
                         "ssex":each[2], "cname":each[3]} for each in cur.fetchall()]
         print(StudentList)
@@ -745,7 +745,7 @@ def getCourseList(request):  # 获取课程列表
         cur.execute("select * from course;")
         total = len(cur.fetchall())
         sql = "select cid, cname from course limit %s,%s;"
-        cur.execute(sql, ((pagenum-1)*pagesize, pagenum*pagesize))
+        cur.execute(sql, ((pagenum-1)*pagesize, pagesize))
         CourseList = [{"cid": each[0], "cname":each[1]}
                       for each in cur.fetchall()]
         print(CourseList)
@@ -855,8 +855,8 @@ def getGradeList(request):  # 获取成绩列表
         cur = con.cursor()
         cur.execute("select * from stugrades;")
         total = len(cur.fetchall())
-        sql = "select student.sid, sname, cname, sgrade from stugrades,student,course where stugrades.sid=student.sid and stugrades.cid=course.cid limit %s,%s;"
-        cur.execute(sql, ((pagenum-1)*pagesize, pagenum*pagesize))
+        sql = "select student.sid, sname, cname, sgrade from stugrades,student,course where stugrades.sid=student.sid and stugrades.cid=course.cid order by student.sid limit %s,%s;"
+        cur.execute(sql, ((pagenum-1)*pagesize, pagesize))
         GradeList = [{"sid": each[0], "sname":each[1], "cname":each[2], "sgrade":each[3]}
                      for each in cur.fetchall()]
         print(GradeList)
@@ -973,7 +973,7 @@ def getTeacherClassCourseList(request):  # 获取老师教授的班级课程列�
         cur.execute("select * from Teacher_Class_Course;")
         total = len(cur.fetchall())
         sql = "select teacher.tid, tname, class.cname, course.cname from Teacher_Class_Course,teacher,class,course where teacher.tid=Teacher_Class_Course.tid and class.cid=claid and course.cid=couid limit %s,%s;"
-        cur.execute(sql, ((pagenum-1)*pagesize, pagenum*pagesize))
+        cur.execute(sql, ((pagenum-1)*pagesize, pagesize))
         TeacherClassCourseList = [{"tid": each[0], "tname":each[1], "claname":each[2], "couname":each[3]}
                                   for each in cur.fetchall()]
         print(TeacherClassCourseList)
