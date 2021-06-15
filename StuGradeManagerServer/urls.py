@@ -16,10 +16,10 @@ Including another URLconf
 from django.urls import path
 from admin.views import menu
 # 学院
-from admin.views import CreateAcadamy
-from admin.views import getAcadamyList
-from admin.views import delAcadamy
-from admin.views import ModifyAcadamy
+from admin.views import CreateCollege
+from admin.views import getCollegeList
+from admin.views import delCollege
+from admin.views import ModifyCollege
 # 系
 from admin.views import CreateDepartment
 from admin.views import getDepartmentList
@@ -62,50 +62,50 @@ from admin.views import delTeacherClassCourse
 from admin.views import ModifyTeacherClassCourse
 # from admin.views import *
 urlpatterns = [
-    path('menu/', menu),
+    path('menu', menu),
     # 学院
-    path('CreateAcadamy/', CreateAcadamy),
-    path('getAcadamyList/', getAcadamyList),
-    path('delAcadamy/', delAcadamy),
-    path('ModifyAcadamy/', ModifyAcadamy),
+    path('CreateCollege', CreateCollege),
+    path('getCollegeList', getCollegeList),
+    path('delCollege', delCollege),
+    path('ModifyCollege', ModifyCollege),
     # 系
-    path('CreateDepartment/', CreateDepartment),
-    path('getDepartmentList/', getDepartmentList),
-    path('delDepartment/', delDepartment),
-    path('ModifyDepartment/', ModifyDepartment),
+    path('CreateDepartment', CreateDepartment),
+    path('getDepartmentList', getDepartmentList),
+    path('delDepartment', delDepartment),
+    path('ModifyDepartment', ModifyDepartment),
     # 教研室
-    path('CreateJiaoYan/', CreateJiaoYan),
-    path('getJiaoYanList/', getJiaoYanList),
-    path('delJiaoYan/', delJiaoYan),
-    path('ModifyJiaoYan/', ModifyJiaoYan),
+    path('CreateJiaoYan', CreateJiaoYan),
+    path('getJiaoYanList', getJiaoYanList),
+    path('delJiaoYan', delJiaoYan),
+    path('ModifyJiaoYan', ModifyJiaoYan),
     # 教室
-    path('CreateClass/', CreateClass),
-    path('getClassList/', getClassList),
-    path('delClass/', delClass),
-    path('ModifyClass/', ModifyClass),
+    path('CreateClass', CreateClass),
+    path('getClassList', getClassList),
+    path('delClass', delClass),
+    path('ModifyClass', ModifyClass),
     # 教师
-    path('CreateTeacher/', CreateTeacher),
-    path('getTeacherList/', getTeacherList),
-    path('delTeacher/', delTeacher),
-    path('ModifyTeacher/', ModifyTeacher),
+    path('CreateTeacher', CreateTeacher),
+    path('getTeacherList', getTeacherList),
+    path('delTeacher', delTeacher),
+    path('ModifyTeacher', ModifyTeacher),
     # 学生
-    path('CreateStudent/', CreateStudent),
-    path('getStudentList/', getStudentList),
-    path('delStudent/', delStudent),
-    path('ModifyStudent/', ModifyStudent),
+    path('CreateStudent', CreateStudent),
+    path('getStudentList', getStudentList),
+    path('delStudent', delStudent),
+    path('ModifyStudent', ModifyStudent),
     # 课程
-    path('CreateCourse/', CreateCourse),
-    path('getCourseList/', getCourseList),
-    path('delCourse/', delCourse),
-    path('ModifyCourse/', ModifyCourse),
+    path('CreateCourse', CreateCourse),
+    path('getCourseList', getCourseList),
+    path('delCourse', delCourse),
+    path('ModifyCourse', ModifyCourse),
     # 成绩
-    path('InputGrade/', InputGrade),
-    path('getGradeList/', getGradeList),
-    path('delGrade/', delGrade),
-    path('ModifyGrade/', ModifyGrade),
+    path('InputGrade', InputGrade),
+    path('getGradeList', getGradeList),
+    path('delGrade', delGrade),
+    path('ModifyGrade', ModifyGrade),
     # 老师教授的班级课程
-    path('InputTeacherClassCourse/', InputTeacherClassCourse),
-    path('getTeacherClassCourseList/', getTeacherClassCourseList),
-    path('delTeacherClassCourse/', delTeacherClassCourse),
-    path('ModifyTeacherClassCourse/', ModifyTeacherClassCourse)
+    path('InputTeacherClassCourse', InputTeacherClassCourse),
+    path('getTeacherClassCourseList', getTeacherClassCourseList),
+    path('delTeacherClassCourse', delTeacherClassCourse),
+    path('ModifyTeacherClassCourse', ModifyTeacherClassCourse)
 ]

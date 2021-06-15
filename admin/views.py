@@ -17,7 +17,7 @@ from pymysql import cursors
 """
 
 
-def getAcadamyList(request):  # 获取学院列表
+def getCollegeList(request):  # 获取学院列表
     pagesize = int(request.GET.get("pagesize"))
     pagenum = int(request.GET.get("pagenum"))
     total = 0
@@ -29,9 +29,9 @@ def getAcadamyList(request):  # 获取学院列表
         total = len(cur.fetchall())
         sql = "select cid, cname,  ccharge from college limit %s,%s;"
         cur.execute(sql, ((pagenum-1)*pagesize, pagenum*pagesize))
-        acadamylist = [{"cid": each[0], "cname":each[1],
+        CollegeList = [{"cid": each[0], "cname":each[1],
                         "ccharge":each[2]} for each in cur.fetchall()]
-        print(acadamylist)
+        print(CollegeList)
     except Exception as e:
         print(e)
     finally:
@@ -42,14 +42,14 @@ def getAcadamyList(request):  # 获取学院列表
         print("##########")
     return JsonResponse({"data": {"total": total,
                                   "pagenum": 1,
-                                  "acadamylist":   acadamylist},
+                                  "CollegeList":   CollegeList},
                          "meta": {
                              "msg": "获取学院列表成功",
                              "status": 200
     }})
 
 
-def delAcadamy(request):  # 删除学院
+def delCollege(request):  # 删除学院
     cid = request.GET.get("cid")
     res = {}
     try:
@@ -73,7 +73,7 @@ def delAcadamy(request):  # 删除学院
         return JsonResponse(res)
 
 
-def CreateAcadamy(request):  # 创建学院
+def CreateCollege(request):  # 创建学院
     cid = request.GET.get("cid")
     cname = request.GET.get("cname")
     ccharge = request.GET.get("ccharge")
@@ -99,7 +99,7 @@ def CreateAcadamy(request):  # 创建学院
         return JsonResponse(res)
 
 
-def ModifyAcadamy(request):  # 修改学院
+def ModifyCollege(request):  # 修改学院
     cid = request.GET.get("cid")
     cname = request.GET.get("cname")
     ccharge = request.GET.get("ccharge")
@@ -140,11 +140,11 @@ def getDepartmentList(request):  # 获取系列表
         cur = con.cursor()
         cur.execute("select * from department;")
         total = len(cur.fetchall())
-        sql = "select did, dname,  dcharge, cid from department limit %s,%s;"
+        sql = "select did, dname, dcharge, cname from department,college where department.cid = college.cid limit %s,%s;"
         cur.execute(sql, ((pagenum-1)*pagesize, pagenum*pagesize))
-        Departmentlist = [{"did": each[0], "dname":each[1],
-                           "dcharge":each[2], "cid":each[3]} for each in cur.fetchall()]
-        print(Departmentlist)
+        DepartmentList = [{"did": each[0], "dname":each[1],
+                           "dcharge":each[2], "cname":each[3]} for each in cur.fetchall()]
+        print(DepartmentList)
     except Exception as e:
         print(e)
     finally:
@@ -155,7 +155,7 @@ def getDepartmentList(request):  # 获取系列表
         print("##########")
     return JsonResponse({"data": {"total": total,
                                   "pagenum": 1,
-                                  "Departmentlist":   Departmentlist},
+                                  "DepartmentList":   DepartmentList},
                          "meta": {
                              "msg": "获取系列表成功",
                              "status": 200
@@ -190,12 +190,15 @@ def CreateDepartment(request):  # 创建系
     did = request.GET.get("did")
     dname = request.GET.get("dname")
     dcharge = request.GET.get("dcharge")
-    cid = request.GET.get("cid")
+    cname = request.GET.get("cname")
     res = {}
     try:
         con = pymysql.connect(host="localhost", port=3306,
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
+        cur.execute("select cid from college where cname='%s';" % cname)
+        cid = cur.fetchall()
+        print(cid)
         sql = 'insert into department (did,dname,dcharge,cid) values (%s,%s,%s,%s);'
         print(sql % (did, dname,
               dcharge, cid))
@@ -219,12 +222,14 @@ def ModifyDepartment(request):  # 修改系
     did = request.GET.get("did")
     dname = request.GET.get("dname")
     dcharge = request.GET.get("dcharge")
-    cid = request.GET.get("cid")
+    cname = request.GET.get("cname")
     res = {}
     try:
         con = pymysql.connect(host="localhost", port=3306,
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
+        cur.execute("select cid from college where cname='%s';" % cname)
+        cid = cur.fetchall()
         sql = 'update department set dname=%s,dcharge=%s,cid=%s where did=%s;'
         print(sql % (dname, dcharge,
               cid, did))
@@ -259,10 +264,10 @@ def getJiaoYanList(request):  # 获取教研室列表
         cur = con.cursor()
         cur.execute("select * from jiaoyan;")
         total = len(cur.fetchall())
-        sql = "select jid, jname,  jcharge, did from jiaoyan limit %s,%s;"
+        sql = "select jid, jname,  jcharge, dname from jiaoyan,department where jiaoyan.did=department.did limit %s,%s;"
         cur.execute(sql, ((pagenum-1)*pagesize, pagenum*pagesize))
         JiaoYanList = [{"jid": each[0], "jname":each[1],
-                        "jcharge":each[2], "did":each[3]} for each in cur.fetchall()]
+                        "jcharge":each[2], "dname":each[3]} for each in cur.fetchall()]
         print(JiaoYanList)
     except Exception as e:
         print(e)
@@ -309,13 +314,15 @@ def CreateJiaoYan(request):  # 创建教研室
     jid = request.GET.get("jid")
     jname = request.GET.get("jname")
     jcharge = request.GET.get("jcharge")
-    did = request.GET.get("did")
+    dname = request.GET.get("dname")
     res = {}
     try:
         con = pymysql.connect(host="localhost", port=3306,
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
-        sql = 'insert into department (jid,jname,jcharge,did) values (%s,%s,%s,%s);'
+        cur.execute("select did from department where dname='%s'" % dname)
+        did = cur.fetchall()
+        sql = 'insert into jiaoyan (jid,jname,jcharge,did) values (%s,%s,%s,%s);'
         print(sql % (jid, jname,
               jcharge, did))
         cur.execute(sql, (jid, jname,
@@ -338,13 +345,16 @@ def ModifyJiaoYan(request):  # 修改教研室
     jid = request.GET.get("jid")
     jname = request.GET.get("jname")
     jcharge = request.GET.get("jcharge")
-    did = request.GET.get("did")
+    dname = request.GET.get("dname")
     res = {}
     try:
         con = pymysql.connect(host="localhost", port=3306,
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
-        sql = 'update department set jname=%s,jcharge=%s,did=%s where jid=%s;'
+        cur.execute("select did from department where dname='%s';" % dname)
+        print("select did from department where dname=%s" % dname)
+        did = cur.fetchall()
+        sql = "update jiaoyan set jname=%s,jcharge=%s,did=%s where jid=%s;"
         print(sql % (jname, jcharge,
               did, jid))
         cur.execute(sql, (jname, jcharge,
@@ -378,10 +388,10 @@ def getClassList(request):  # 获取班级列表
         cur = con.cursor()
         cur.execute("select * from class;")
         total = len(cur.fetchall())
-        sql = "select cid, cname, did from class limit %s,%s;"
+        sql = "select class.cid, cname, dname from class,department where class.did=department.did limit %s,%s;"
         cur.execute(sql, ((pagenum-1)*pagesize, pagenum*pagesize))
         ClassList = [{"cid": each[0], "cname":each[1],
-                      "did":each[2]} for each in cur.fetchall()]
+                      "dname":each[2]} for each in cur.fetchall()]
         print(ClassList)
     except Exception as e:
         print(e)
@@ -427,13 +437,15 @@ def delClass(request):  # 删除班级
 def CreateClass(request):  # 创建班级
     cid = request.GET.get("cid")
     cname = request.GET.get("cname")
-    did = request.GET.get("did")
+    dname = request.GET.get("dname")
     res = {}
     try:
         con = pymysql.connect(host="localhost", port=3306,
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
-        sql = 'insert into class (cid,cname,did) values (%s,%s,%s,%s);'
+        cur.execute("select did from department where dname='%s';" % dname)
+        did = cur.fetchall()
+        sql = 'insert into class (cid,cname,did) values (%s,%s,%s);'
         print(sql % (cid, cname, did))
         cur.execute(sql, (cid, cname, did))
         con.commit()
@@ -453,12 +465,14 @@ def CreateClass(request):  # 创建班级
 def ModifyClass(request):  # 修改班级
     cid = request.GET.get("cid")
     cname = request.GET.get("cname")
-    did = request.GET.get("did")
+    dname = request.GET.get("dname")
     res = {}
     try:
         con = pymysql.connect(host="localhost", port=3306,
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
+        cur.execute("select did from department where dname='%s'" % dname)
+        did = cur.fetchall()
         sql = 'update class set cname=%s,did=%s where cid=%s;'
         print(sql % (cname, did, cid))
         cur.execute(sql, (cname, did, cid))
@@ -491,10 +505,10 @@ def getTeacherList(request):  # 获取教师列表
         cur = con.cursor()
         cur.execute("select * from teacher;")
         total = len(cur.fetchall())
-        sql = "select tid, tname, trank, jid from teacher limit %s,%s;"
+        sql = "select tid, tname, trank, jname from teacher,jiaoyan where teacher.jid=jiaoyan.jid limit %s,%s;"
         cur.execute(sql, ((pagenum-1)*pagesize, pagenum*pagesize))
         TeacherList = [{"tid": each[0], "tname":each[1],
-                        "trank":each[2], "jid":each[3]} for each in cur.fetchall()]
+                        "trank":each[2], "jname":each[3]} for each in cur.fetchall()]
         print(TeacherList)
     except Exception as e:
         print(e)
@@ -541,12 +555,15 @@ def CreateTeacher(request):  # 创建教师
     tid = request.GET.get("tid")
     tname = request.GET.get("tname")
     trank = request.GET.get("trank")
-    jid = request.GET.get("jid")
+    jname = request.GET.get("jname")
     res = {}
     try:
         con = pymysql.connect(host="localhost", port=3306,
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
+        print("jname: "+jname)
+        cur.execute("select jid from jiaoyan where jname='%s';" % jname)
+        jid = cur.fetchall()
         sql = 'insert into teacher (tid,tname,trank,jid) values (%s,%s,%s,%s);'
         print(sql % (tid, tname, trank, jid))
         cur.execute(sql, (tid, tname, trank, jid))
@@ -568,12 +585,14 @@ def ModifyTeacher(request):  # 修改教师
     tid = request.GET.get("tid")
     tname = request.GET.get("tname")
     trank = request.GET.get("trank")
-    jid = request.GET.get("jid")
+    jname = request.GET.get("jname")
     res = {}
     try:
         con = pymysql.connect(host="localhost", port=3306,
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
+        cur.execute("select jid from jiaoyan where jname='%s';" % jname)
+        jid = cur.fetchall()
         sql = 'update teacher set tname=%s,trank=%s,jid=%s where tid=%s;'
         print(sql % (tname, trank, jid, tid))
         cur.execute(sql, (tname, trank, jid, tid))
@@ -606,10 +625,10 @@ def getStudentList(request):  # 获取学生列表
         cur = con.cursor()
         cur.execute("select * from student;")
         total = len(cur.fetchall())
-        sql = "select sid, sname, ssex, cid from student limit %s,%s;"
+        sql = "select sid, sname, ssex, cname from student,class where student.cid=class.cid limit %s,%s;"
         cur.execute(sql, ((pagenum-1)*pagesize, pagenum*pagesize))
         StudentList = [{"sid": each[0], "sname":each[1],
-                        "ssex":each[2], "cid":each[3]} for each in cur.fetchall()]
+                        "ssex":each[2], "cname":each[3]} for each in cur.fetchall()]
         print(StudentList)
     except Exception as e:
         print(e)
@@ -656,12 +675,14 @@ def CreateStudent(request):  # 创建学生
     sid = request.GET.get("sid")
     sname = request.GET.get("sname")
     ssex = request.GET.get("ssex")
-    cid = request.GET.get("cid")
+    cname = request.GET.get("cname")
     res = {}
     try:
         con = pymysql.connect(host="localhost", port=3306,
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
+        cur.execute("select cid from class where cname='%s';" % cname)
+        cid = cur.fetchall()
         sql = 'insert into student (sid,sname,ssex,cid) values (%s,%s,%s,%s);'
         print(sql % (sid, sname, ssex, cid))
         cur.execute(sql, (sid, sname, ssex, cid))
@@ -683,12 +704,14 @@ def ModifyStudent(request):  # 修改学生
     sid = request.GET.get("sid")
     sname = request.GET.get("sname")
     ssex = request.GET.get("ssex")
-    cid = request.GET.get("cid")
+    cname = request.GET.get("cname")
     res = {}
     try:
         con = pymysql.connect(host="localhost", port=3306,
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
+        cur.execute("select cid from class where cname='%s';" % cname)
+        cid = cur.fetchall()
         sql = 'update student set sname=%s,ssex=%s,cid=%s where sid=%s;'
         print(sql % (sname, ssex, cid, sid))
         cur.execute(sql, (sname, ssex, cid, sid))
@@ -832,9 +855,9 @@ def getGradeList(request):  # 获取成绩列表
         cur = con.cursor()
         cur.execute("select * from stugrades;")
         total = len(cur.fetchall())
-        sql = "select sid, cid, sgrade from stugrades limit %s,%s;"
+        sql = "select student.sid, sname, cname, sgrade from stugrades,student,course where stugrades.sid=student.sid and stugrades.cid=course.cid limit %s,%s;"
         cur.execute(sql, ((pagenum-1)*pagesize, pagenum*pagesize))
-        GradeList = [{"sid": each[0], "cid":each[1], "sgrade":each[2]}
+        GradeList = [{"sid": each[0], "sname":each[1], "cname":each[2], "sgrade":each[3]}
                      for each in cur.fetchall()]
         print(GradeList)
     except Exception as e:
@@ -880,13 +903,15 @@ def delGrade(request):  # 删除成绩
 
 def InputGrade(request):  # 录入成绩
     sid = request.GET.get("sid")
-    cid = request.GET.get("cid")
+    cname = request.GET.get("cname")
     sgrade = request.GET.get("sgrade")
     res = {}
     try:
         con = pymysql.connect(host="localhost", port=3306,
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
+        cur.execute("select cid from course where cname='%s';" % cname)
+        cid = cur.fetchall()
         sql = 'insert into stugrades (sid,cid,sgrade) values (%s,%s,%s);'
         print(sql % (sid, cid, sgrade))
         cur.execute(sql, (sid, cid, sgrade))
@@ -906,13 +931,15 @@ def InputGrade(request):  # 录入成绩
 
 def ModifyGrade(request):  # 修改成绩
     sid = request.GET.get("sid")
-    cid = request.GET.get("cid")
+    cname = request.GET.get("cname")
     sgrade = request.GET.get("sgrade")
     res = {}
     try:
         con = pymysql.connect(host="localhost", port=3306,
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
+        cur.execute("select cid from course where cname='%s';" % cname)
+        cid = cur.fetchall()
         sql = 'update stugrades set cid=%s, sgrade=%s where sid=%s;'
         print(sql % (cid, sgrade, sid))
         cur.execute(sql, (cid, sgrade, sid))
@@ -945,9 +972,9 @@ def getTeacherClassCourseList(request):  # 获取老师教授的班级课程列�
         cur = con.cursor()
         cur.execute("select * from Teacher_Class_Course;")
         total = len(cur.fetchall())
-        sql = "select tid, claid, couid from Teacher_Class_Course limit %s,%s;"
+        sql = "select teacher.tid, tname, class.cname, course.cname from Teacher_Class_Course,teacher,class,course where teacher.tid=Teacher_Class_Course.tid and class.cid=claid and course.cid=couid limit %s,%s;"
         cur.execute(sql, ((pagenum-1)*pagesize, pagenum*pagesize))
-        TeacherClassCourseList = [{"tid": each[0], "claid":each[1], "couid":each[2]}
+        TeacherClassCourseList = [{"tid": each[0], "tname":each[1], "claname":each[2], "couname":each[3]}
                                   for each in cur.fetchall()]
         print(TeacherClassCourseList)
     except Exception as e:
@@ -993,13 +1020,17 @@ def delTeacherClassCourse(request):  # 删除老师教授的班级课程
 
 def InputTeacherClassCourse(request):  # 录入老师教授的班级课程
     tid = request.GET.get("tid")
-    claid = request.GET.get("claid")
-    couid = request.GET.get("couid")
+    claname = request.GET.get("claname")
+    couname = request.GET.get("couname")
     res = {}
     try:
         con = pymysql.connect(host="localhost", port=3306,
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
+        cur.execute("select cid from class where cname='%s';" % claname)
+        claid = cur.fetchall()
+        cur.execute("select cid from course where cname='%s';" % couname)
+        couid = cur.fetchall()
         sql = 'insert into Teacher_Class_Course (tid,claid,couid) values (%s,%s,%s);'
         print(sql % (tid, claid, couid))
         cur.execute(sql, (tid, claid, couid))
@@ -1019,14 +1050,18 @@ def InputTeacherClassCourse(request):  # 录入老师教授的班级课程
 
 def ModifyTeacherClassCourse(request):  # 修改老师教授的班级课程
     tid = request.GET.get("tid")
-    claid = request.GET.get("claid")
-    couid = request.GET.get("couid")
+    claname = request.GET.get("claname")
+    couname = request.GET.get("couname")
     res = {}
     try:
         con = pymysql.connect(host="localhost", port=3306,
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
-        sql = 'update Teacher_Class_Course set claid=%s couid=%s where tid=%s;'
+        cur.execute("select cid from class where cname='%s';" % claname)
+        claid = cur.fetchall()
+        cur.execute("select cid from course where cname='%s';" % couname)
+        couid = cur.fetchall()
+        sql = "update Teacher_Class_Course set claid=%s, couid=%s where tid=%s;"
         print(sql % (claid, couid, tid))
         cur.execute(sql, (claid, couid, tid))
         con.commit()
@@ -1043,7 +1078,6 @@ def ModifyTeacherClassCourse(request):  # 修改老师教授的班级课程
         return JsonResponse(res)
 
 
-
 def menu(request):
     res = {
         "data": [{
@@ -1056,7 +1090,7 @@ def menu(request):
             "children": [{
                 "id": 11,
                 "authName": "创建学院",
-                "path": "CreateAcadamy",
+                "path": "CreateCollege",
                 "children": [],
                 "order": 1
             }, {
@@ -1068,7 +1102,7 @@ def menu(request):
             }, {
                 "id": 13,
                 "authName": "创建教研室",
-                "path": "CreateTRO",
+                "path": "CreateJiaoYan",
                 "children": [],
                 "order": 3
             }, {
@@ -1107,7 +1141,7 @@ def menu(request):
                 "order": 3
             }, {
                 "id": 24,
-                "authName": "录入老师讲授的课程",
+                "authName": "录入老师教授的班级课程",
                 "path": "InputTeaCou",
                 "children": [],
                 "order": 4
