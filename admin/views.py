@@ -20,15 +20,18 @@ from pymysql import cursors
 def getCollegeList(request):  # 获取学院列表
     pagesize = int(request.GET.get("pagesize"))
     pagenum = int(request.GET.get("pagenum"))
+    query = '%'+request.GET.get("query")+'%'
     total = 0
     try:
         con = pymysql.connect(host="localhost", port=3306,
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
-        cur.execute("select * from college;")
+        cur.execute("select * from college where cid like '%s' or cname like '%s' or ccharge like '%s';" %
+                    (query, query, query))
         total = len(cur.fetchall())
-        sql = "select cid, cname,  ccharge from college limit %s,%s;"
-        cur.execute(sql, ((pagenum-1)*pagesize, pagesize))
+        sql = "select cid, cname,  ccharge from college where cid like '%s' or cname like '%s' or ccharge like '%s' limit %s,%s;"
+        cur.execute(sql % (query, query, query,
+                    (pagenum-1)*pagesize, pagesize))
         CollegeList = [{"cid": each[0], "cname":each[1],
                         "ccharge":each[2]} for each in cur.fetchall()]
         print(CollegeList)
@@ -133,15 +136,17 @@ def ModifyCollege(request):  # 修改学院
 def getDepartmentList(request):  # 获取系列表
     pagesize = int(request.GET.get("pagesize"))
     pagenum = int(request.GET.get("pagenum"))
+    query = '%'+request.GET.get("query")+'%'
     total = 0
     try:
         con = pymysql.connect(host="localhost", port=3306,
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
-        cur.execute("select * from department;")
+        cur.execute("select * from department,college where department.cid = college.cid and (did like '%s' or dname like '%s' or dcharge like '%s' or cname like '%s');" % (query, query, query, query))
         total = len(cur.fetchall())
-        sql = "select did, dname, dcharge, cname from department,college where department.cid = college.cid limit %s,%s;"
-        cur.execute(sql, ((pagenum-1)*pagesize, pagesize))
+        sql = "select did, dname, dcharge, cname from department,college where department.cid = college.cid and (did like '%s' or dname like '%s' or dcharge like '%s' or cname like '%s') limit %s,%s;"
+        cur.execute(sql % (query, query, query, query,
+                    (pagenum-1)*pagesize, pagesize))
         DepartmentList = [{"did": each[0], "dname":each[1],
                            "dcharge":each[2], "cname":each[3]} for each in cur.fetchall()]
         print(DepartmentList)
@@ -257,15 +262,19 @@ def ModifyDepartment(request):  # 修改系
 def getJiaoYanList(request):  # 获取教研室列表
     pagesize = int(request.GET.get("pagesize"))
     pagenum = int(request.GET.get("pagenum"))
+    query = '%'+request.GET.get("query")+'%'
     total = 0
     try:
         con = pymysql.connect(host="localhost", port=3306,
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
-        cur.execute("select * from jiaoyan;")
+        cur.execute("select * from jiaoyan,department where jiaoyan.did=department.did and (jid like '%s' or jname like '%s' or jcharge like '%s' or dname like '%s');" % (
+            query, query, query, query))
+        # cur.execute("select * from jiaoyan;")
         total = len(cur.fetchall())
-        sql = "select jid, jname,  jcharge, dname from jiaoyan,department where jiaoyan.did=department.did limit %s,%s;"
-        cur.execute(sql, ((pagenum-1)*pagesize, pagesize))
+        sql = "select jid, jname,  jcharge, dname from jiaoyan,department where jiaoyan.did=department.did and (jid like '%s' or jname like '%s' or jcharge like '%s' or dname like '%s') limit %s,%s;"
+        cur.execute(sql % (query, query, query, query,
+                    (pagenum-1)*pagesize, pagesize))
         JiaoYanList = [{"jid": each[0], "jname":each[1],
                         "jcharge":each[2], "dname":each[3]} for each in cur.fetchall()]
         print(JiaoYanList)
@@ -381,15 +390,17 @@ def ModifyJiaoYan(request):  # 修改教研室
 def getClassList(request):  # 获取班级列表
     pagesize = int(request.GET.get("pagesize"))
     pagenum = int(request.GET.get("pagenum"))
+    query = '%'+request.GET.get("query")+'%'
     total = 0
     try:
         con = pymysql.connect(host="localhost", port=3306,
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
-        cur.execute("select * from class;")
+        cur.execute("select * from class,department where class.did=department.did and (class.cid like '%s' or cname like '%s' or dname like '%s');" % (query, query, query))
         total = len(cur.fetchall())
-        sql = "select class.cid, cname, dname from class,department where class.did=department.did limit %s,%s;"
-        cur.execute(sql, ((pagenum-1)*pagesize, pagesize))
+        sql = "select class.cid, cname, dname from class,department where class.did=department.did and (class.cid like '%s' or cname like '%s' or dname like '%s') limit %s,%s;"
+        cur.execute(sql % (query, query, query,
+                    (pagenum-1)*pagesize, pagesize))
         ClassList = [{"cid": each[0], "cname":each[1],
                       "dname":each[2]} for each in cur.fetchall()]
         print(ClassList)
@@ -498,15 +509,18 @@ def ModifyClass(request):  # 修改班级
 def getTeacherList(request):  # 获取教师列表
     pagesize = int(request.GET.get("pagesize"))
     pagenum = int(request.GET.get("pagenum"))
+    query = '%'+request.GET.get("query")+'%'
     total = 0
     try:
         con = pymysql.connect(host="localhost", port=3306,
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
-        cur.execute("select * from teacher;")
+        cur.execute("select * from teacher,jiaoyan where teacher.jid=jiaoyan.jid and (tid like '%s' or tname like '%s' or trank like '%s' or jname like '%s');" %
+                    (query, query, query, query))
         total = len(cur.fetchall())
-        sql = "select tid, tname, trank, jname from teacher,jiaoyan where teacher.jid=jiaoyan.jid limit %s,%s;"
-        cur.execute(sql, ((pagenum-1)*pagesize, pagesize))
+        sql = "select tid, tname, trank, jname from teacher,jiaoyan where teacher.jid=jiaoyan.jid and (tid like '%s' or tname like '%s' or trank like '%s' or jname like '%s') limit %s,%s;"
+        cur.execute(sql % (query, query, query, query,
+                    (pagenum-1)*pagesize, pagesize))
         TeacherList = [{"tid": each[0], "tname":each[1],
                         "trank":each[2], "jname":each[3]} for each in cur.fetchall()]
         print(TeacherList)
@@ -618,15 +632,18 @@ def ModifyTeacher(request):  # 修改教师
 def getStudentList(request):  # 获取学生列表
     pagesize = int(request.GET.get("pagesize"))
     pagenum = int(request.GET.get("pagenum"))
+    query = '%'+request.GET.get("query")+'%'
     total = 0
     try:
         con = pymysql.connect(host="localhost", port=3306,
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
-        cur.execute("select * from student;")
+        cur.execute("select * from student,class where student.cid=class.cid and (sid like '%s' or sname like '%s' or ssex like '%s' or cname like '%s');" %
+                    (query, query, query, query))
         total = len(cur.fetchall())
-        sql = "select sid, sname, ssex, cname from student,class where student.cid=class.cid limit %s,%s;"
-        cur.execute(sql, ((pagenum-1)*pagesize, pagesize))
+        sql = "select sid, sname, ssex, cname from student,class where student.cid=class.cid and (sid like '%s' or sname like '%s' or ssex like '%s' or cname like '%s') limit %s,%s;"
+        cur.execute(sql % (query, query, query, query,
+                    (pagenum-1)*pagesize, pagesize))
         StudentList = [{"sid": each[0], "sname":each[1],
                         "ssex":each[2], "cname":each[3]} for each in cur.fetchall()]
         print(StudentList)
@@ -737,15 +754,17 @@ def ModifyStudent(request):  # 修改学生
 def getCourseList(request):  # 获取课程列表
     pagesize = int(request.GET.get("pagesize"))
     pagenum = int(request.GET.get("pagenum"))
+    query = '%'+request.GET.get("query")+'%'
     total = 0
     try:
         con = pymysql.connect(host="localhost", port=3306,
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
-        cur.execute("select * from course;")
+        cur.execute(
+            "select * from course where cid like '%s' or cname like '%s';" % (query, query))
         total = len(cur.fetchall())
-        sql = "select cid, cname from course limit %s,%s;"
-        cur.execute(sql, ((pagenum-1)*pagesize, pagesize))
+        sql = "select cid, cname from course where cid like '%s' or cname like '%s' limit %s,%s;"
+        cur.execute(sql % (query, query, (pagenum-1)*pagesize, pagesize))
         CourseList = [{"cid": each[0], "cname":each[1]}
                       for each in cur.fetchall()]
         print(CourseList)
@@ -848,15 +867,17 @@ def ModifyCourse(request):  # 修改课程
 def getGradeList(request):  # 获取成绩列表
     pagesize = int(request.GET.get("pagesize"))
     pagenum = int(request.GET.get("pagenum"))
+    query = '%'+request.GET.get("query")+'%'
     total = 0
     try:
         con = pymysql.connect(host="localhost", port=3306,
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
-        cur.execute("select * from stugrades;")
+        cur.execute("select * from stugrades,student,course where stugrades.sid=student.sid and stugrades.cid=course.cid and (student.sid like '%s' or sname like '%s' or cname like '%s' or sgrade like '%s');" % (query, query, query, query))
         total = len(cur.fetchall())
-        sql = "select student.sid, sname, cname, sgrade from stugrades,student,course where stugrades.sid=student.sid and stugrades.cid=course.cid order by student.sid limit %s,%s;"
-        cur.execute(sql, ((pagenum-1)*pagesize, pagesize))
+        sql = "select student.sid, sname, cname, sgrade from stugrades,student,course where stugrades.sid=student.sid and stugrades.cid=course.cid and (student.sid like '%s' or sname like '%s' or cname like '%s' or sgrade like '%s') order by student.sid limit %s,%s;"
+        cur.execute(sql % (query, query, query, query,
+                    (pagenum-1)*pagesize, pagesize))
         GradeList = [{"sid": each[0], "sname":each[1], "cname":each[2], "sgrade":each[3]}
                      for each in cur.fetchall()]
         print(GradeList)
@@ -965,15 +986,17 @@ def ModifyGrade(request):  # 修改成绩
 def getTeacherClassCourseList(request):  # 获取老师教授的班级课程列表
     pagesize = int(request.GET.get("pagesize"))
     pagenum = int(request.GET.get("pagenum"))
+    query = '%'+request.GET.get("query")+'%'
     total = 0
     try:
         con = pymysql.connect(host="localhost", port=3306,
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
-        cur.execute("select * from Teacher_Class_Course;")
+        cur.execute("select *  from Teacher_Class_Course,teacher,class,course where teacher.tid=Teacher_Class_Course.tid and class.cid=claid and course.cid=couid and (teacher.tid like '%s' or tname like '%s' or class.cname like '%s' or course.cname like '%s');" % (query, query, query, query))
         total = len(cur.fetchall())
-        sql = "select teacher.tid, tname, class.cname, course.cname from Teacher_Class_Course,teacher,class,course where teacher.tid=Teacher_Class_Course.tid and class.cid=claid and course.cid=couid limit %s,%s;"
-        cur.execute(sql, ((pagenum-1)*pagesize, pagesize))
+        sql = "select teacher.tid, tname, class.cname, course.cname from Teacher_Class_Course,teacher,class,course where teacher.tid=Teacher_Class_Course.tid and class.cid=claid and course.cid=couid and (teacher.tid like '%s' or tname like '%s' or class.cname like '%s' or course.cname like '%s') limit %s,%s;"
+        cur.execute(sql % (query, query, query, query,
+                    (pagenum-1)*pagesize, pagesize))
         TeacherClassCourseList = [{"tid": each[0], "tname":each[1], "claname":each[2], "couname":each[3]}
                                   for each in cur.fetchall()]
         print(TeacherClassCourseList)
