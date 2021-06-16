@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.urls import path
 from admin.views import menu
+from admin.views import getMenuTree
 # 学院
 from admin.views import CreateCollege
 from admin.views import getCollegeList
@@ -60,9 +61,13 @@ from admin.views import InputTeacherClassCourse
 from admin.views import getTeacherClassCourseList
 from admin.views import delTeacherClassCourse
 from admin.views import ModifyTeacherClassCourse
+# 查询
+from admin.views import QueryGradeByClass
+from admin.views import QuerySum
 # from admin.views import *
 urlpatterns = [
     path('menu', menu),
+    path('getMenuTree', getMenuTree),
     # 学院
     path('CreateCollege', CreateCollege),
     path('getCollegeList', getCollegeList),
@@ -107,5 +112,8 @@ urlpatterns = [
     path('InputTeacherClassCourse', InputTeacherClassCourse),
     path('getTeacherClassCourseList', getTeacherClassCourseList),
     path('delTeacherClassCourse', delTeacherClassCourse),
-    path('ModifyTeacherClassCourse', ModifyTeacherClassCourse)
+    path('ModifyTeacherClassCourse', ModifyTeacherClassCourse),
+    # 查询
+    path('QueryGradeByClass', QueryGradeByClass),
+    path('QuerySum', QuerySum)
 ]

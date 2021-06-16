@@ -1101,6 +1101,83 @@ def ModifyTeacherClassCourse(request):  # 修改老师教授的班级课程
         return JsonResponse(res)
 
 
+"""
+    查询
+"""
+
+
+def QueryGradeByClass(request):  # 按班级查询课程成绩
+    pagesize = int(request.GET.get("pagesize"))
+    pagenum = int(request.GET.get("pagenum"))
+    cname = request.GET.get("cname")
+    # query = '%'+request.GET.get("query")+'%'
+    total = 0
+    try:
+        con = pymysql.connect(host="localhost", port=3306,
+                              user="root", password="root", db="djangodb")
+        cur = con.cursor()
+        cur.execute("select student.sid, sname, course.cname, sgrade from stugrades,student,course,class where stugrades.sid=student.sid and stugrades.cid=course.cid and class.cname='%s' and student.cid=class.cid;" % cname)
+        total = len(cur.fetchall())
+        sql = "select student.sid, sname, course.cname, sgrade from stugrades,student,course,class where stugrades.sid=student.sid and stugrades.cid=course.cid and class.cname='%s' and student.cid=class.cid order by student.sid limit %s,%s;"
+        cur.execute(sql % (cname, (pagenum-1)*pagesize, pagesize))
+        GradeList = [{"sid": each[0], "sname":each[1], "cname":each[2], "sgrade":each[3]}
+                     for each in cur.fetchall()]
+        print(GradeList)
+    except Exception as e:
+        print(e)
+    finally:
+        cur.close()
+        con.close()
+        print("total: ", end="")
+        print(total)
+        print("##########")
+    return JsonResponse({"data": {"total": total,
+                                  "pagenum": 1,
+                                  "GradeList":   GradeList},
+                         "meta": {
+                             "msg": "获取成绩列表成功",
+                             "status": 200
+    }})
+
+
+def QuerySum(request):  # 查询课程分数段人数
+    pagesize = int(request.GET.get("pagesize"))
+    pagenum = int(request.GET.get("pagenum"))
+    cname = request.GET.get("cname")
+    left = float(request.GET.get("left"))
+    right = float(request.GET.get("right"))
+    # query = '%'+request.GET.get("query")+'%'
+    total = 0
+    try:
+        con = pymysql.connect(host="localhost", port=3306,
+                              user="root", password="root", db="djangodb")
+        cur = con.cursor()
+
+        cur.execute(
+            "select * from stugrades,course,student where sgrade>=%s and sgrade<=%s and student.sid=stugrades.sid and course.cid=stugrades.cid and course.cname='%s';" % (left, right, cname))
+        total = len(cur.fetchall())
+        sql = "select student.sid,sname,cname,sgrade from stugrades,course,student where sgrade>=%s and sgrade<=%s and student.sid=stugrades.sid and course.cid=stugrades.cid and course.cname='%s' limit %s,%s;"
+        cur.execute(sql % (left, right, cname, (pagenum-1)*pagesize, pagesize))
+        GradeList = [{"sid": each[0], "sname":each[1], "cname":each[2], "sgrade":each[3]}
+                     for each in cur.fetchall()]
+        print(GradeList)
+    except Exception as e:
+        print(e)
+    finally:
+        cur.close()
+        con.close()
+        print("total: ", end="")
+        print(total)
+        print("##########")
+    return JsonResponse({"data": {"total": total,
+                                  "pagenum": 1,
+                                  "GradeList":   GradeList},
+                         "meta": {
+                             "msg": "获取成绩列表成功",
+                             "status": 200
+    }})
+
+
 def menu(request):
     res = {
         "data": [{
@@ -1192,19 +1269,19 @@ def menu(request):
             "Query",
             "children": [{
                 "id": 31,
-                "authName": "按班级查询课程成绩",
-                "path": "QueryGrade",
+                "authName": "班级课程成绩",
+                "path": "QueryGradeByClass",
                 "children": [],
                 "order": 1
             }, {
                 "id": 32,
-                "authName": "统计某课程的各分数段人数",
+                "authName": "课程各分数段人数",
                 "path": "QuerySum",
                 "children": [],
                 "order": 2
             }, {
                 "id": 33,
-                "authName": "统计学生所有课程总分及所在班级名次",
+                "authName": "学生总分及名次",
                 "path": "QueryRank",
                 "children": [],
                 "order": 3
@@ -1264,6 +1341,7 @@ def menu(request):
     #         }]
     # }
     return JsonResponse(res)
+
     # json_str = json.dumps(res, ensure_ascii=False)
     # print(json_str)
     # # 响应状态
@@ -1275,3 +1353,122 @@ def menu(request):
     # # res = "1"
     # # print(res)
     # return status, response_header, json_str
+# {
+#     value:[]
+#     options:[{
+#         value: '信息工程学院',
+#         label: '信息工程学院',
+#         children: [{
+#           value: '计算机系',
+#           label: '计算机系',
+#           children: [{
+#             value: '计算机191班',
+#             label: '计算机191班'
+#           }, {
+#             value: '计算机192班',
+#             label: '计算机192班'
+#           }, {
+#             value: '计算机193班',
+#             label: '计算机193班'
+#           }, {
+#             value: '计算机194班',
+#             label: '计算机194班'
+#           }]
+#         }, {
+#           value: '电子系',
+#           label: '电子系',
+#           children: [{
+#             value: '电子信息191班',
+#             label: '电子信息191班'
+#           }, {
+#             value: '电子信息192班',
+#             label: '电子信息192班'
+#           }]
+#         }]
+#       }
+#     ]
+# }
+# r = {'value': [],
+#      'options': [
+#     {'value': '信息工程学院', 'label': '信息工程学院',
+#      'children': [
+#          {'value': '计算机系', 'label': '计算机系', 'children': []},
+#          {'value': '电子系', 'label': '电子系', 'children': []}
+#      ]
+#      },
+#     {'value': '机电工程学院', 'label': '机电工程学院',
+#      'children': [
+#          {'value': '计算机系', 'label': '计算机系', 'children': []},
+#          {'value': '电子系', 'label': '电子系', 'children': []}]},
+#     {'value': '建筑工程学院', 'label': '建筑工程学院', 'children': [{'value': '计算机系', 'label': '计算机系', 'children': []}, {'value': '电子系', 'label': '电子系', 'children': []}]}]}
+no = [(), ("cname", "college"), ("dname", "department", "college", "cid", "cname"),
+      ("cname", "class", "department", "did", "dname")]
+
+# select dname from department,college where department.cid=college.cid and college.cname='信息工程学院';
+
+
+def f(curr, deep):
+    res = {}
+    res["value"] = curr
+    res["label"] = curr
+    if(deep > 3):
+        return res
+    sql = "select %s from %s,%s where %s.%s=%s.%s and %s.%s='%s';"
+    print(sql % (no[deep][0], no[deep][1], no[deep][2], no[deep][1], no[deep]
+          [3], no[deep][2], no[deep][3], no[deep][2], no[deep][4], curr))
+    con = pymysql.connect(host="localhost", port=3306,
+                          user="root", password="root", db="djangodb")
+    cur = con.cursor()
+    try:
+        cur.execute(sql % (no[deep][0], no[deep][1], no[deep][2], no[deep][1],
+                    no[deep][3], no[deep][2], no[deep][3], no[deep][2], no[deep][4], curr))
+        result = cur.fetchall()
+        # print(result)
+        n = len(result)
+        if(n == 0):
+            print("#"*20)
+            return res
+        res["children"] = []
+        for each in range(0, n):
+            res["children"].append(f(result[each][0], deep+1))
+            # print(result[each][0])
+    except Exception as e:
+        print(e)
+    finally:
+        # print(res)
+        cur.close()
+        con.close()
+        return res
+
+
+def getMenuTree(request):
+    res = {}
+    meta = {}
+    # res["value"] = []
+    data = {}
+    data["options"] = []
+    con = pymysql.connect(host="localhost", port=3306,
+                          user="root", password="root", db="djangodb")
+    cur = con.cursor()
+    sql = "select cname from college;"
+    try:
+        cur.execute(sql)
+        result = cur.fetchall()
+        # print(result)
+        for each in range(0, len(result)):
+            data["options"].append(f(result[each][0], 2))
+            print(result[each][0])
+        res["meta"] = {"msg": "修改成功！", "status": 200}
+    except Exception as e:
+        print(e)
+        res["meta"] = {"msg": "获取失败！", "status": 500}
+    finally:
+        print(res)
+        cur.close()
+        con.close()
+    res["data"] = data
+    print(res)
+    return JsonResponse(res)
+
+
+# getMenuTree(0)
