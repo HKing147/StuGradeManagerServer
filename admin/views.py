@@ -1178,6 +1178,44 @@ def QuerySum(request):  # 查询课程分数段人数
     }})
 
 
+
+def QueryRank(request):  # 学生总分及名次
+    pagesize = int(request.GET.get("pagesize"))
+    pagenum = int(request.GET.get("pagenum"))
+    cname = request.GET.get("cname")
+    
+    # query = '%'+request.GET.get("query")+'%'
+    total = 0
+    try:
+        con = pymysql.connect(host="localhost", port=3306,
+                              user="root", password="root", db="djangodb")
+        cur = con.cursor()
+        # select student.sid,sname,sum(stugrades.sgrade) as sum from stugrades,student,class where stugrades.sid=student.sid and class.cname='计算机191班' and student.cid=class.cid group by sname,student.sid order by sum;
+        cur.execute("select student.sid,sname,sum(stugrades.sgrade) as sum from stugrades,student,class where stugrades.sid=student.sid and class.cname='%s' and student.cid=class.cid group by sname,student.sid order by sum;" % cname)
+        total = len(cur.fetchall())
+        sql = "select student.sid,sname,sum(stugrades.sgrade) as sum from stugrades,student,class where stugrades.sid=student.sid and class.cname='%s' and student.cid=class.cid group by sname,student.sid order by sum limit %s,%s;"
+        print(sql % (cname, (pagenum-1)*pagesize, pagesize))
+        cur.execute(sql % (cname, (pagenum-1)*pagesize, pagesize))
+        GradeList = [{"sid": each[0], "sname":each[1], "sum":each[2]}
+                     for each in cur.fetchall()]
+        print(GradeList)
+    except Exception as e:
+        print(e)
+    finally:
+        cur.close()
+        con.close()
+        print("total: ", end="")
+        print(total)
+        print("##########")
+    return JsonResponse({"data": {"total": total,
+                                  "pagenum": 1,
+                                  "GradeList":   GradeList},
+                         "meta": {
+                             "msg": "获取成绩列表成功",
+                             "status": 200
+    }})
+
+
 def menu(request):
     res = {
         "data": [{

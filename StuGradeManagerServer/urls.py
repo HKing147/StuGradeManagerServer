@@ -64,6 +64,7 @@ from admin.views import ModifyTeacherClassCourse
 # 查询
 from admin.views import QueryGradeByClass
 from admin.views import QuerySum
+from admin.views import QueryRank
 # from admin.views import *
 urlpatterns = [
     path('menu', menu),
@@ -115,5 +116,6 @@ urlpatterns = [
     path('ModifyTeacherClassCourse', ModifyTeacherClassCourse),
     # 查询
     path('QueryGradeByClass', QueryGradeByClass),
-    path('QuerySum', QuerySum)
+    path('QuerySum', QuerySum),
+    path('QueryRank', QueryRank)
 ]
