@@ -1252,7 +1252,7 @@ def menu(request):
                 "order": 3
             }, {
                 "id": 14,
-                "authName": "创建学生班级",
+                "authName": "创建班级",
                 "path": "CreateClass",
                 "children": [],
                 "order": 4
@@ -1268,7 +1268,7 @@ def menu(request):
             "rights",
             "children": [{
                 "id": 21,
-                "authName": "录入老师信息",
+                "authName": "录入教师信息",
                 "path": "InputTea",
                 "children": [],
                 "order": 1
@@ -1286,7 +1286,7 @@ def menu(request):
                 "order": 3
             }, {
                 "id": 24,
-                "authName": "录入各班开设的课程",
+                "authName": "录入班级开设的课程",
                 "path": "InputTeaCou",
                 "children": [],
                 "order": 4
