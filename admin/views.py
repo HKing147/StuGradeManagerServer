@@ -1178,12 +1178,11 @@ def QuerySum(request):  # 查询课程分数段人数
     }})
 
 
-
 def QueryRank(request):  # 学生总分及名次
     pagesize = int(request.GET.get("pagesize"))
     pagenum = int(request.GET.get("pagenum"))
     cname = request.GET.get("cname")
-    
+
     # query = '%'+request.GET.get("query")+'%'
     total = 0
     try:
@@ -1191,9 +1190,9 @@ def QueryRank(request):  # 学生总分及名次
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
         # select student.sid,sname,sum(stugrades.sgrade) as sum from stugrades,student,class where stugrades.sid=student.sid and class.cname='计算机191班' and student.cid=class.cid group by sname,student.sid order by sum;
-        cur.execute("select student.sid,sname,sum(stugrades.sgrade) as sum from stugrades,student,class where stugrades.sid=student.sid and class.cname='%s' and student.cid=class.cid group by sname,student.sid order by sum;" % cname)
+        cur.execute("select student.sid,sname,sum(stugrades.sgrade) as sum from stugrades,student,class where stugrades.sid=student.sid and class.cname='%s' and student.cid=class.cid group by sname,student.sid order by sum desc;" % cname)
         total = len(cur.fetchall())
-        sql = "select student.sid,sname,sum(stugrades.sgrade) as sum from stugrades,student,class where stugrades.sid=student.sid and class.cname='%s' and student.cid=class.cid group by sname,student.sid order by sum limit %s,%s;"
+        sql = "select student.sid,sname,sum(stugrades.sgrade) as sum from stugrades,student,class where stugrades.sid=student.sid and class.cname='%s' and student.cid=class.cid group by sname,student.sid order by sum desc limit %s,%s;"
         print(sql % (cname, (pagenum-1)*pagesize, pagesize))
         cur.execute(sql % (cname, (pagenum-1)*pagesize, pagesize))
         GradeList = [{"sid": each[0], "sname":each[1], "sum":each[2]}
@@ -1279,22 +1278,16 @@ def menu(request):
                 "order": 3
             }, {
                 "id": 24,
-                "authName": "录入老师教授的班级课程",
+                "authName": "录入各班开设的课程",
                 "path": "InputTeaCou",
                 "children": [],
                 "order": 4
             }, {
                 "id": 25,
-                "authName": "录入各班开设的课程",
-                "path": "InputClassCou",
-                "children": [],
-                "order": 5
-            }, {
-                "id": 26,
                 "authName": "录入课程成绩",
                 "path": "InputGrade",
                 "children": [],
-                "order": 6
+                "order": 5
             }],
             "order":
             2
@@ -1326,39 +1319,8 @@ def menu(request):
             }],
             "order":
             3
-        }, {
-            "id":
-            4,
-            "authName":
-            "订单管理",
-            "path":
-            "orders",
-            "children": [{
-                "id": 41,
-                "authName": "订单列表",
-                "path": "orders",
-                "children": [],
-                "order": 0
-            }],
-            "order":
-            4
-        }, {
-            "id":
-            5,
-            "authName":
-            "数据统计",
-            "path":
-            "reports",
-            "children": [{
-                "id": 51,
-                "authName": "数据报表",
-                "path": "reports",
-                "children": [],
-                "order": 0
-            }],
-            "order":
-            5
-        }],
+        }
+        ],
         "meta": {
             "msg": "获取菜单列表成功",
             "status": 200
@@ -1379,6 +1341,7 @@ def menu(request):
     #         }]
     # }
     return JsonResponse(res)
+
 
     # json_str = json.dumps(res, ensure_ascii=False)
     # print(json_str)

@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-$3g^i)_+ec-sv1=7v^prbfb2@o9vzit&#(efyf7kgub_gg=1k#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["10.102.31.240", "127.0.0.1", "localhost"]
+ALLOWED_HOSTS = ["10.102.31.240", "127.0.0.1", "localhost", "10.101.180.147"]
 
 
 # Application definition
@@ -136,6 +136,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 CORS_ORIGIN_WHITELIST = (
     'http://127.0.0.1:8080',
     'http://localhost:8080',
+    'http://10.101.180.147'
 )
 # 允许cookie
 CORS_ALLOW_CREDENTIALS = True  # 指明在跨域访问中，后端是否支持对cookie的操作
