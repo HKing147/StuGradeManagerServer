@@ -1189,14 +1189,22 @@ def QueryRank(request):  # 学生总分及名次
         con = pymysql.connect(host="localhost", port=3306,
                               user="root", password="root", db="djangodb")
         cur = con.cursor()
+        cur.execute("select cid from class where cname='%s'" % cname)
+        cid = cur.fetchall()[0][0]
+        print(cid)
         # select student.sid,sname,sum(stugrades.sgrade) as sum from stugrades,student,class where stugrades.sid=student.sid and class.cname='计算机191班' and student.cid=class.cid group by sname,student.sid order by sum;
-        cur.execute("select student.sid,sname,sum(stugrades.sgrade) as sum from stugrades,student,class where stugrades.sid=student.sid and class.cname='%s' and student.cid=class.cid group by sname,student.sid order by sum desc;" % cname)
+        # cur.execute("select student.sid,sname,sum(stugrades.sgrade) as sum from stugrades,student,class where stugrades.sid=student.sid and class.cname='%s' and student.cid=class.cid group by sname,student.sid order by sum desc;" % cname)
+        cur.execute("select (@rank:=@rank+1) mingci,xxx.* from (select s.sid,s.sname,g.grades from student s join  (select sum(sg.sgrade) as grades,sg.sid as sid from stugrades sg,course c,student s where sg.sid = s.sid and sg.cid = c.cid and s.cid=%s group by sg.sid) as g where s.sid = g.sid) xxx,(SELECT (@rank:=0)) r order by xxx.grades desc;" % cid)
         total = len(cur.fetchall())
-        sql = "select student.sid,sname,sum(stugrades.sgrade) as sum from stugrades,student,class where stugrades.sid=student.sid and class.cname='%s' and student.cid=class.cid group by sname,student.sid order by sum desc limit %s,%s;"
-        print(sql % (cname, (pagenum-1)*pagesize, pagesize))
-        cur.execute(sql % (cname, (pagenum-1)*pagesize, pagesize))
-        GradeList = [{"sid": each[0], "sname":each[1], "sum":each[2]}
-                     for each in cur.fetchall()]
+        # sql = "select student.sid,sname,sum(stugrades.sgrade) as sum from stugrades,student,class where stugrades.sid=student.sid and class.cname='%s' and student.cid=class.cid group by sname,student.sid order by sum desc limit %s,%s;"
+        # sql = "select (@rank:=@rank+1) mingci,xxx.* from (select s.sid,s.sname,g.grades from student s join (select sum(sg.sgrade) as grades,sg.sid as sid from stugrades sg,course c,student s where sg.sid = s.sid and sg.cid = c.cid and s.cid=%s group by sg.sid) as g where s.sid = g.sid) xxx,(SELECT (@rank:=0)) r order by xxx.grades desc limit %s,%s;"
+        sql = "select (@rank:=@rank+1) mingci,xxx.* from (select s.sid,s.sname,g.grades from student s join (select sum(sg.sgrade) as grades,sg.sid as sid from stugrades sg,course c,student s where sg.sid = s.sid and sg.cid = c.cid and s.cid=%s group by sg.sid) as g where s.sid = g.sid) xxx,(SELECT (@rank:=0)) r order by xxx.grades desc;"
+        print(sql % cid)
+        cur.execute(sql % cid)
+        res = cur.fetchall()
+        print(res)
+        GradeList = [{"rank": each[0], "sid":each[1], "sname":each[2], "sum":each[3]}
+                     for each in res[(pagenum-1)*pagesize:pagenum*pagesize]]
         print(GradeList)
     except Exception as e:
         print(e)
